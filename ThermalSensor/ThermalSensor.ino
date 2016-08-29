@@ -17,5 +17,6 @@ void loop(){
   readThermalSensor();
   Serial.println("DATA:");
   outputThermalData();
+  Serial.println("Done.");
   delay(60000);
 }

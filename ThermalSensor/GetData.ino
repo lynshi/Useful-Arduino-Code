@@ -125,30 +125,36 @@ void readThermalSensor()
   }  
   // step 4: request reading from sensor
   Wire.requestFrom(0x0a, 34);    // request 2 bytes from slave device #112
+  Serial.print("Available: ");
+  Serial.println(Wire.available());
   // step 5: receive reading from sensor
   while(count<34){
     if(2 <= Wire.available()){   // if two bytes were received
       reading = Wire.read();  // receive high byte (overwrites previous reading) 
       reading += Wire.read()<<8;    
-      if(count != 0){
-         buff[15 - ((count - 2) / 2)] = reading;
-      }           
-      //Serial.print("Count: "); 
-      //Serial.println(count);
-      //Serial.print("Pan Pointer: ");
-      //Serial.println(getThermalPanBufferPointer());
-      //Serial.print("Tilt Pointer: ");
-      //Serial.println(getThermalTiltBufferPointer());
+      if(count != 0){ //skip first byte; it's reference temperature
+        //APPEARS TO BE CUTTING OFF LAST TWO BYTES
+        buff[count/2 - 1] = reading;   
+      }
+      Serial.print("Count: "); 
+      Serial.println(count);
+      Serial.print("Pan Pointer: ");
+      Serial.println(getThermalPanBufferPointer());
+      Serial.print("Tilt Pointer: ");
+      Serial.println(getThermalTiltBufferPointer());
+      Serial.print("Reading: ");
+      Serial.println(reading);
       count+=2;
     }
   }
- // Serial.println("count done");
+  Serial.println("count done");
   for(int i = 0; i < 16; i++){
     if((i % 4) == 0 && (i != 0)){
       setThermalTiltBufferPointer(1 + getThermalTiltBufferPointer());
     }
     setThermalBuffer(buff[i], getThermalTiltBufferPointer(), getThermalPanBufferPointer() + (i % 4));
   }
+  Serial.println("Done reading.");
 }
 
 void outputThermalData(){
